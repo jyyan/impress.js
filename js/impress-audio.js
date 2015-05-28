@@ -8,12 +8,11 @@ License: Free General Public License (GPL)
 (function(document, $, undefined) {
   'use strict';
 
-  var isPlaying, waitTimeout ,
-    $media,currPlaying,
+  var isPlaying, currPlaying, waitTimeout, timerID,
+    $media, $currSlide,
+    spacingTime = 300,
     impressObj = impress(),
     impressGoto = impressObj.goto;
-  var TimerID;
-  var SpacingTime = 300; //ms
 
   $(document).on('impress:stepenter', function(event,f) {
     var $currSlide = $(event.target);
@@ -30,7 +29,7 @@ License: Free General Public License (GPL)
       $media.each(function(){
         $(this)[0].removeEventListener('ended'); // unbind event if its exist
         $(this)[0].addEventListener('ended',function() {
-          var nextPlay = $(this).next()[0]
+          var nextPlay = $(this).next()[0];
           if(nextPlay){
             // play next media
             currPlaying = nextPlay;
@@ -38,8 +37,7 @@ License: Free General Public License (GPL)
           }else{
             // go to the next slide
             if(isPlaying && $currSlide[0] != $currSlide.parent().children().last()[0]) {
-              setTimeout(function(){impressObj.goto($currSlide.next())}, SpacingTime);
-              //impressObj.goto($currSlide.next());
+              setTimeout(function(){impressObj.goto($currSlide.next())}, spacingTime);
             } else {
               isPlaying = false;
             }
@@ -48,9 +46,9 @@ License: Free General Public License (GPL)
       });
     }
 
-    clearTimeout(TimerID);
+    clearTimeout(timerID);
     if(!$media[0] && waitTimeout > 0 && isPlaying){
-      TimerID = setTimeout(function(){impressObj.goto($currSlide.next())}, waitTimeout );
+      timerID = setTimeout(function(){impressObj.goto($currSlide.next())}, waitTimeout );
     }
   });
 
@@ -77,20 +75,14 @@ License: Free General Public License (GPL)
   }
 
   document.addEventListener("keyup", function ( event ) {
-    if ( event.keyCode === 27 ||  event.keyCode === 13 ) {
-      switch( event.keyCode ) {
-        case 27: // esc
-        case 13:  // enter
-          if(isPlaying){
-            impressObj.pause();
-          }else{
-            impressObj.resume();
-          }
-        break;
+    if ( event.keyCode === 13 ) {
+      if(isPlaying){
+        impressObj.pause();
+      }else{
+        impressObj.resume();
       }
-
-      event.preventDefault();
     }
+    event.preventDefault();
   }, false);
 
 })(document, jQuery);
